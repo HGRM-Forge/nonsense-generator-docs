@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApiController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Nonsense Generator</a> &gt; <a href="index.source.html" class="el_package">com.hgrm.nonsensegenerator.apilayer</a> &gt; <span class="el_source">ApiController.java</span></div><h1>ApiController.java</h1><pre class="source lang-java linenums">package com.hgrm.nonsensegenerator.apilayer;
+
+import com.hgrm.nonsensegenerator.corelayer.CoreController;
+import com.hgrm.nonsensegenerator.corelayer.entities.SentenceProcessingOption;
+import com.hgrm.nonsensegenerator.corelayer.entities.SentenceTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@CrossOrigin(origins = &quot;*&quot;)
+<span class="fc" id="L13">public class ApiController {</span>
+    @Autowired
+    CoreController coreController;
+
+    @GetMapping(&quot;/api/get-sentence-history&quot;)
+    public List&lt;String&gt; getSentenceHistory() {
+<span class="nc" id="L19">        return coreController.getSentenceHistory();</span>
+    }
+
+    @PostMapping(&quot;/api/process-and-generate-sentence&quot;)
+    public CoreController.SentenceOutputData processAndGenerateSentence(@RequestBody SentenceInputData inputData) {
+<span class="nc" id="L24">        return coreController.processAndGenerateSentence(inputData.sentence(), inputData.option());</span>
+    }
+
+    @GetMapping(&quot;/api/get-template-list&quot;)
+    public List&lt;SentenceTemplate&gt; getTemplateList() {
+<span class="nc" id="L29">        return coreController.getTemplateList();</span>
+    }
+
+<span class="nc" id="L32">    public record SentenceInputData(String sentence, SentenceProcessingOption option ) {}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

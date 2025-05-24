@@ -1,0 +1,98 @@
+---
+title: Nonsense Generator
+---
+
+Welcome to the Nonsense Generator! This application, developed by **HGRMForge** for the Software Engineering course (A.A. 2024-25) at the University of Padua, generates grammatically plausible but nonsensical sentences. It leverages the Google Cloud Natural Language API for sentence analysis and toxicity validation.
+
+## Prerequisites
+
+-   **Java**: JDK 17 or newer (for local execution).
+-   **Docker**: Latest version (for Docker-based execution).
+-   **GCP API Key**: A valid Google Cloud Platform API Key with the "Cloud Natural Language API" enabled.
+    -   For **Docker execution**, this key must be set as an environment variable named `GCP_API_KEY` in your shell.
+    -   For **local execution (Spring Boot/IntelliJ)**, create a file named `.env` in the root directory of the project with the following content (replace `YOUR_GCP_API_KEY_HERE` with your actual key). This file will be automatically picked up by the application:
+        ```
+        GCP_API_KEY=YOUR_GCP_API_KEY_HERE
+        ```
+
+## Getting Started
+
+Once the application is running, you can typically access the frontend at `http://localhost:8080`.
+
+There are several ways to run the Nonsense Generator:
+
+### 1. Using Docker Hub (Recommended for ease of use)
+
+Ensure you have Docker installed and the `GCP_API_KEY` environment variable set in your shell.
+The `-v "$(pwd)/buckets:/app/buckets"` command maps a directory named `buckets` in your current working directory to `/app/buckets` inside the container. This is useful if the application saves data.
+
+```bash
+# Set your GCP API Key (replace YOUR_GCP_API_KEY_HERE)
+GCP_API_KEY="YOUR_GCP_API_KEY_HERE"
+
+# Pull and run the image from Docker Hub
+docker run -v "$(pwd)/buckets:/app/buckets" -e GCP_API_KEY=$GCP_API_KEY -p 8080:8080 hgrm/nonsense-generator
+```
+
+### 2. Build Docker Image Locally
+
+If you want to build the image from the source code:
+
+```bash
+# 1. Clone the repository (if you haven't already)
+git clone https://github.com/HGRM-Forge/nonsense-generator.git
+cd nonsense-generator
+
+# 2. Set your GCP API Key for Docker build/run (replace YOUR_GCP_API_KEY_HERE)
+GCP_API_KEY="YOUR_GCP_API_KEY_HERE"
+
+# 3. Build the Docker image
+docker build -t hgrm/nonsense-generator .
+
+# 4. Run the container
+docker run -v "$(pwd)/buckets:/app/buckets" -e GCP_API_KEY=$GCP_API_KEY -p 8080:8080 hgrm/nonsense-generator
+```
+
+### 3. With Spring Boot (Using Maven Wrapper)
+
+This method runs the application directly using Spring Boot, ideal for development.
+Ensure you have created the `.env` file in the project root as described in the "Prerequisites" section.
+
+```bash
+# 1. Clone the repository (if you haven't already)
+git clone https://github.com/HGRM-Forge/nonsense-generator.git
+cd nonsense-generator
+
+# 2. Create .env file in the project root (if not already done)
+echo "GCP_API_KEY=YOUR_GCP_API_KEY_HERE" > .env
+
+# 3. Run the application using the Maven wrapper
+./mvnw spring-boot:run
+```
+
+### 4. In IntelliJ IDEA (for Development)
+
+1.  Clone the repository and open the project in IntelliJ IDEA (File -> Open -> select the `pom.xml` or root project folder).
+2.  **Create `.env` file**: In the root directory of the project, create a file named `.env` and add your API key:
+    ```
+    GCP_API_KEY=YOUR_GCP_API_KEY_HERE
+    ```
+    The Spring Boot application should pick this up when running locally.
+3.  **Enable Annotation Processing**:
+    -   Go to `File` > `Settings` (or `IntelliJ IDEA` > `Preferences` on macOS).
+    -   Navigate to `Build, Execution, Deployment` > `Compiler` > `Annotation Processors`.
+    -   Check the box for "Enable annotation processing". Click `Apply` and `OK`.
+4.  Run the main application class (named `NonsenseGeneratorApplication.java`).
+
+## Running Tests
+
+To execute the JUnit tests for the project, use the Maven wrapper. Ensure the `.env` file is present in the project root.
+
+```bash
+# From the project root directory
+./mvnw test
+```
+
+---
+
+Developed by HGRMForge.

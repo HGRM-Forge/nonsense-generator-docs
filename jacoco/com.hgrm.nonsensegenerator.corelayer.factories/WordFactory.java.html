@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WordFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Nonsense Generator</a> &gt; <a href="index.source.html" class="el_package">com.hgrm.nonsensegenerator.corelayer.factories</a> &gt; <span class="el_source">WordFactory.java</span></div><h1>WordFactory.java</h1><pre class="source lang-java linenums">package com.hgrm.nonsensegenerator.corelayer.factories;
+
+import com.hgrm.nonsensegenerator.corelayer.entities.Adjective;
+import com.hgrm.nonsensegenerator.corelayer.entities.Noun;
+import com.hgrm.nonsensegenerator.corelayer.entities.Verb;
+import com.hgrm.nonsensegenerator.corelayer.entities.Word;
+import com.hgrm.nonsensegenerator.corelayer.enums.Tense;
+import com.hgrm.nonsensegenerator.corelayer.enums.WordType;
+import org.springframework.stereotype.Component;
+
+@Component
+public class WordFactory {
+
+<span class="fc" id="L14">    public WordFactory() {</span>
+        //Only for Spring IoC
+<span class="fc" id="L16">    }</span>
+
+    public Word createWord(String wordString, WordType wordType) {
+<span class="fc bfc" id="L19" title="All 3 branches covered.">        return switch (wordType) {</span>
+<span class="fc" id="L20">            case NOUN -&gt; new Noun(wordString);</span>
+<span class="fc" id="L21">            case VERB -&gt; throw new IllegalArgumentException(&quot;Verb creation requires tense&quot;);</span>
+<span class="fc" id="L22">            case ADJECTIVE -&gt; new Adjective(wordString);</span>
+        };
+    }
+    public Word createWord(String wordString, WordType wordType, Tense tense) {
+<span class="fc bfc" id="L26" title="All 3 branches covered.">        return switch (wordType) {</span>
+<span class="fc" id="L27">            case NOUN -&gt; new Noun(wordString);</span>
+<span class="fc" id="L28">            case VERB -&gt; new Verb(wordString, tense);</span>
+<span class="fc" id="L29">            case ADJECTIVE -&gt; new Adjective(wordString);</span>
+        };
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ToxicityAnalyzerService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Nonsense Generator</a> &gt; <a href="index.source.html" class="el_package">com.hgrm.nonsensegenerator.corelayer.services</a> &gt; <span class="el_source">ToxicityAnalyzerService.java</span></div><h1>ToxicityAnalyzerService.java</h1><pre class="source lang-java linenums">package com.hgrm.nonsensegenerator.corelayer.services;
+
+import com.google.cloud.language.v1.*;
+import com.hgrm.nonsensegenerator.corelayer.configurations.CoreConfig;
+import org.springframework.stereotype.Service;
+import java.io.IOException;
+
+/**
+ * This service uses Google Cloud's Natural Language API to analyze the toxicity of a given sentence.
+ * It checks if the sentence contains any toxic content based on predefined categories.
+ */
+@Service
+public class ToxicityAnalyzerService {
+    private final LanguageServiceClient serviceClient;
+<span class="fc" id="L15">    ToxicityAnalyzerService(CoreConfig coreConfig) throws IOException {</span>
+<span class="fc" id="L16">        LanguageServiceSettings serviceSettings = LanguageServiceSettings.newBuilder().setApiKey(coreConfig.getGcpApiKey()).build();</span>
+<span class="fc" id="L17">        serviceClient = LanguageServiceClient.create(serviceSettings);</span>
+<span class="fc" id="L18">    }</span>
+
+    public boolean isToxic(String sentence) {
+        // Initialize the Document object with the sentence to be analyzed
+<span class="fc" id="L22">        Document doc = Document.newBuilder()</span>
+<span class="fc" id="L23">                .setContent(sentence)</span>
+<span class="fc" id="L24">                .setType(Document.Type.PLAIN_TEXT)</span>
+<span class="fc" id="L25">                .setLanguage(&quot;en&quot;)</span>
+<span class="fc" id="L26">                .build();</span>
+
+        // Create the request and read the response
+<span class="fc" id="L29">        ModerateTextRequest request = ModerateTextRequest.newBuilder()</span>
+<span class="fc" id="L30">                .setDocument(doc)</span>
+<span class="fc" id="L31">                .build();</span>
+<span class="fc" id="L32">        ModerateTextResponse response = serviceClient.moderateText(request);</span>
+
+        // Check if any of the moderation categories have a confidence score greater than 0.5. Moderation categories include:
+        // Toxic, Insult, Profanity, Derogatory, Sexual, Death, Harm &amp; Tragedy, Violent, Firearms &amp; weapons,
+        // Public safety, Health, Religion &amp; Belief, Illicit drugs, War &amp; conflict, Politics, Finance and Legal
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        for (ClassificationCategory category: response.getModerationCategoriesList()) {</span>
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">            if (category.getConfidence() &gt; 0.5)</span>
+<span class="nc" id="L39">                return true;</span>
+<span class="fc" id="L40">        }</span>
+<span class="fc" id="L41">        return false;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,87 @@
+---
+title: Use Cases
+---
+
+| Actor         | Who interacts with the user case                                        |
+| ------------- | ----------------------------------------------------------------------- |
+| Description   | Describe what does the user case entails                                |
+| Indispensable | If this user case needs to be used for the system to function correctly |
+| Prerequisite  | Other user cases which are needed for its operation                     |
+| Extensions    | Other user cases which influence its operation                          |
+
+## 1. Insert Sentence
+
+| Actors        | User                                      |
+| ------------- | ----------------------------------------- |
+| Description   | The user writes a sentence in the system. |
+| Indispensable | Yes                                       |
+| Prerequisite  | -                                         |
+| Extensions    | -                                         |
+
+## 2. Sentence History
+
+| Actors        | User                                                                                       |
+| ------------- | ------------------------------------------------------------------------------------------ |
+| Description   | The user can visualize al of its previous sentences and the words are saved for future use |
+| Extension     | -                                                                                          |
+| Indispensable | No                                                                                         |
+| Prerequisite  | Insert Sentence                                                                            |
+| Extensions    | -                                                                                          |
+
+## 3. Choose Template
+
+| Actors        | User                                                                                 |
+| ------------- | ------------------------------------------------------------------------------------ |
+| Description   | The user can select the template used for the outputted sentence (casual otherwise). |
+| Indispensable | No                                                                                   |
+| Prerequisite  | -                                                                                    |
+| Extensions    | -                                                                                    |
+
+## 4. Time Preference
+
+| Actors        | User                                                                             |
+| ------------- | -------------------------------------------------------------------------------- |
+| Description   | The user can select the verb tense of the outputted sentence (casual otherwise). |
+| Indispensable | No                                                                               |
+| Prerequisite  | -                                                                                |
+| Extensions    | -                                                                                |
+
+## 5. Toxicity Filter
+
+| Actors        | Toxicity API                                                                                                                                  |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Description   | The system will check for toxic elements present in the inputted sentence using the API. In case of toxic elements, request another sentence. |
+| Indispensable | Yes                                                                                                                                           |
+| Prerequisite  | -                                                                                                                                             |
+| Extensions    | -                                                                                                                                             |
+
+## 6. Processing sentence
+
+| Actors        | Analyzer API                                                                                                            |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Description   | The system with the help of the analyzer API will process the sentence, following eventual option given by other cases. |
+| Indispensable | Yes                                                                                                                     |
+| Prerequisite  | Insert Sentence                                                                                                         |
+| Extensions    | Sentence History, Choose Template, Time Preference, Toxicity Filter                                                     |
+
+## 7. Output Sentence
+
+| Actors        | User                                                |
+| ------------- | --------------------------------------------------- |
+| Description   | The system shows to the user his processed sentence |
+| Indispensable | Yes                                                 |
+| Prerequisite  | Processing sentence                                 |
+| Extensions    | -                                                   |
+
+## 8. Syntactic Tree Display
+
+| Actors        | User                                                                  |
+| ------------- | --------------------------------------------------------------------- |
+| Description   | The system shows to the user the syntactic tree of his input sentence |
+| Indispensable | No                                                                    |
+| Prerequisite  | Processing sentence                                                   |
+| Extensions    | -                                                                     |
+
+## Use-case Diagram
+
+![UseCaseDiagram](/images/usecasediagram.png)
