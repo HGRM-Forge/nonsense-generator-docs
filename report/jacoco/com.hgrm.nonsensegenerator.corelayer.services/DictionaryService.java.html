@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DictionaryService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Nonsense Generator</a> &gt; <a href="index.source.html" class="el_package">com.hgrm.nonsensegenerator.corelayer.services</a> &gt; <span class="el_source">DictionaryService.java</span></div><h1>DictionaryService.java</h1><pre class="source lang-java linenums">package com.hgrm.nonsensegenerator.corelayer.services;
+
+import com.hgrm.nonsensegenerator.corelayer.adapters.LocalBucketAdapter;
+import com.hgrm.nonsensegenerator.corelayer.entities.Adjective;
+import com.hgrm.nonsensegenerator.corelayer.entities.Noun;
+import com.hgrm.nonsensegenerator.corelayer.entities.Verb;
+import com.hgrm.nonsensegenerator.corelayer.entities.Word;
+import com.hgrm.nonsensegenerator.corelayer.enums.Tense;
+import com.hgrm.nonsensegenerator.corelayer.enums.WordType;
+import com.hgrm.nonsensegenerator.corelayer.interfaces.Bucket;
+import io.micrometer.common.lang.Nullable;
+import lombok.Getter;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Random;
+
+/**
+ * DictionaryService is responsible for managing the dictionary of words.
+ * It provides methods to get random words, save new words, and reset the dictionary.
+ */
+@Service
+public class DictionaryService {
+    private final Bucket&lt;Noun&gt; nounBucket; // Bucket for nouns
+    private final Bucket&lt;Verb&gt; verbBucket; // Bucket for verbs
+    private final Bucket&lt;Adjective&gt; adjectiveBucket; // Bucket for adjectives
+<span class="fc" id="L27">    private final Random random = new Random();</span>
+    @Getter
+    private final List&lt;Noun&gt; nouns; // List of saved nouns
+    @Getter
+    private final List&lt;Verb&gt; verbs; // List of saved verbs
+    @Getter
+    private final List&lt;Adjective&gt; adjectives; // List of saved adjectives
+
+<span class="fc" id="L35">    public DictionaryService() {</span>
+        // Initialize the buckets for nouns, verbs, and adjectives
+<span class="fc" id="L37">        nounBucket = new LocalBucketAdapter&lt;&gt;(&quot;nouns&quot;,  Noun.class);</span>
+<span class="fc" id="L38">        verbBucket = new LocalBucketAdapter&lt;&gt;(&quot;verbs&quot;,  Verb.class);</span>
+<span class="fc" id="L39">        adjectiveBucket = new LocalBucketAdapter&lt;&gt;(&quot;adjectives&quot;, Adjective.class);</span>
+
+        // Read the words from the buckets and store them in the lists
+<span class="fc" id="L42">        nouns = nounBucket.read();</span>
+<span class="fc" id="L43">        verbs = verbBucket.read();</span>
+<span class="fc" id="L44">        adjectives = adjectiveBucket.read();</span>
+<span class="fc" id="L45">    }</span>
+
+    // Get a random word of a specific type
+    public Word getRandomWord(WordType wordType, @Nullable Tense tense) {
+        // If a tense is selected and the word type is VERB then return a random verb of that specific tense
+<span class="fc bfc" id="L50" title="All 4 branches covered.">        if(wordType == WordType.VERB &amp;&amp; tense != null)</span>
+<span class="fc" id="L51">            return getRandomVerb(tense);</span>
+<span class="fc" id="L52">        Word value = null;</span>
+<span class="pc bpc" id="L53" title="1 of 4 branches missed.">        switch (wordType) {</span>
+            case NOUN -&gt; {
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">                if (!nouns.isEmpty())</span>
+<span class="fc" id="L56">                    value = nouns.get(random.nextInt(nouns.size())); // Get a random noun from the list</span>
+            }
+            case ADJECTIVE -&gt; {
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">                if (!adjectives.isEmpty())</span>
+<span class="fc" id="L60">                    value = adjectives.get(random.nextInt(adjectives.size())); // Get a random adjective from the list</span>
+            }
+            case VERB -&gt; {
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">                if (!verbs.isEmpty())</span>
+<span class="fc" id="L64">                    value = verbs.get(random.nextInt(verbs.size())); // Get a random verb from the list, the tense will be random</span>
+            }
+        }
+<span class="fc" id="L67">        return value; // If the list was empty it returns null</span>
+    }
+
+    // Get a random word but no tense is selected
+    public Word getRandomWord(WordType wordType) {
+<span class="fc" id="L72">        return getRandomWord(wordType, null);</span>
+    }
+
+    // Save a word to the dictionary
+    public void saveWord(Word word) {
+        // If the word is already in the dictionary, do nothing
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        if (nouns.stream().anyMatch(n -&gt; n.equals(word)) ||</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">                verbs.stream().anyMatch(v -&gt; v.equals(word)) ||</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">                adjectives.stream().anyMatch(a -&gt; a.equals(word))) {</span>
+<span class="fc" id="L81">            return;</span>
+        }
+        // Else, add the word to the appropriate list and write it to the corresponding bucket
+<span class="pc bpc" id="L84" title="1 of 4 branches missed.">        switch (word.getType()) {</span>
+            case NOUN:
+<span class="fc" id="L86">                nouns.add((Noun) word);</span>
+<span class="fc" id="L87">                nounBucket.write(nouns);</span>
+<span class="fc" id="L88">                break;</span>
+
+            case VERB:
+<span class="fc" id="L91">                verbs.add((Verb) word);</span>
+<span class="fc" id="L92">                verbBucket.write(verbs);</span>
+<span class="fc" id="L93">                break;</span>
+
+            case ADJECTIVE:
+<span class="fc" id="L96">                adjectives.add((Adjective) word);</span>
+<span class="fc" id="L97">                adjectiveBucket.write(adjectives);</span>
+                break;
+        }
+<span class="fc" id="L100">    }</span>
+
+    // Removes all inputted nouns from the dictionary
+    public void resetNounDictionary() {
+<span class="fc" id="L104">        nounBucket.resetBucket();</span>
+<span class="fc" id="L105">        nouns.clear();</span>
+<span class="fc" id="L106">        nouns.addAll(nounBucket.read());</span>
+<span class="fc" id="L107">    }</span>
+    // Removes all inputted verbs from the dictionary
+    public void resetVerbDictionary() {
+<span class="fc" id="L110">        verbBucket.resetBucket();</span>
+<span class="fc" id="L111">        verbs.clear();</span>
+<span class="fc" id="L112">        verbs.addAll(verbBucket.read());</span>
+<span class="fc" id="L113">    }</span>
+    // Removes all inputted adjectives from the dictionary
+    public void resetAdjectiveDictionary() {
+<span class="fc" id="L116">        adjectiveBucket.resetBucket();</span>
+<span class="fc" id="L117">        adjectives.clear();</span>
+<span class="fc" id="L118">        adjectives.addAll(adjectiveBucket.read());</span>
+<span class="fc" id="L119">    }</span>
+    // Removes all inputted words from the dictionary
+    public void resetDictionary() {
+<span class="fc" id="L122">        resetNounDictionary();</span>
+<span class="fc" id="L123">        resetAdjectiveDictionary();</span>
+<span class="fc" id="L124">        resetVerbDictionary();</span>
+<span class="fc" id="L125">    }</span>
+
+    // Get a random verb of a specific tense
+    private Word getRandomVerb(Tense tense) {
+        // Filter the verbs by the selected tense
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        List&lt;Verb&gt; verbsWithTense = verbs.stream().filter(verb -&gt; verb.getTense() == tense).toList();</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">        if (verbsWithTense.isEmpty())</span>
+<span class="nc" id="L132">            return null; // Return null if empty</span>
+<span class="fc" id="L133">        return verbsWithTense.get(random.nextInt(verbsWithTense.size())); // Get a random verb from the filtered list</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

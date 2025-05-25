@@ -22,8 +22,9 @@
 						"pages": [
 							"UseCases",
 							"DesignDocument",
-							"UnitTests",
-							"SystemTests"
+							"UnitTestCoverage",
+							"SystemTest",
+							"SureFireReport"
 						]
 					}
 				]

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SentenceTemplate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Nonsense Generator</a> &gt; <a href="index.source.html" class="el_package">com.hgrm.nonsensegenerator.corelayer.entities</a> &gt; <span class="el_source">SentenceTemplate.java</span></div><h1>SentenceTemplate.java</h1><pre class="source lang-java linenums">package com.hgrm.nonsensegenerator.corelayer.entities;
+
+import com.hgrm.nonsensegenerator.corelayer.enums.WordType;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+
+import java.util.List;
+
+@NoArgsConstructor
+@AllArgsConstructor
+public class SentenceTemplate {
+    @Getter
+    @NonNull
+    private String templatePlaceholder;
+
+    private static final String PLACEHOLDER_PREFIX = &quot;%%&quot;;
+
+    public int getWordCount(WordType wordType) {
+<span class="fc bfc" id="L21" title="All 3 branches covered.">        String placeholder = switch (wordType) {</span>
+<span class="fc" id="L22">            case NOUN -&gt; PLACEHOLDER_PREFIX + &quot;noun&quot;;</span>
+<span class="fc" id="L23">            case VERB -&gt; PLACEHOLDER_PREFIX + &quot;verb&quot;;</span>
+<span class="fc" id="L24">            case ADJECTIVE -&gt; PLACEHOLDER_PREFIX + &quot;adjective&quot;;</span>
+        };
+<span class="fc" id="L26">        return (templatePlaceholder.length() - templatePlaceholder.replace(placeholder, &quot;&quot;).length()) / placeholder.length();</span>
+    }
+
+    public String buildSentence(List&lt;Word&gt; words) {
+<span class="fc" id="L30">        String sentence = templatePlaceholder;</span>
+
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        for (Word word : words) {</span>
+<span class="fc bfc" id="L33" title="All 3 branches covered.">            String placeholder = switch (word.getType()) {</span>
+<span class="fc" id="L34">                case NOUN -&gt; PLACEHOLDER_PREFIX +&quot;noun&quot;;</span>
+<span class="fc" id="L35">                case VERB -&gt; PLACEHOLDER_PREFIX +&quot;verb&quot;;</span>
+<span class="fc" id="L36">                case ADJECTIVE -&gt; PLACEHOLDER_PREFIX +&quot;adjective&quot;;</span>
+            };
+<span class="fc" id="L38">            sentence = sentence.replaceFirst(placeholder, word.getValue());</span>
+<span class="fc" id="L39">        }</span>
+
+<span class="fc bfc" id="L41" title="All 2 branches covered.">        if (sentence.contains(PLACEHOLDER_PREFIX)) {</span>
+<span class="fc" id="L42">            throw new IllegalArgumentException(&quot;Not enough words provided for the template: &quot;+sentence);</span>
+        }
+<span class="fc" id="L44">        return sentence;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

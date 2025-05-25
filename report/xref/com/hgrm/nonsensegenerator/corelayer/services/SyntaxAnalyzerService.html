@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>SyntaxAnalyzerService xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/com/hgrm/nonsensegenerator/corelayer/services/SyntaxAnalyzerService.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <strong class="jxr_keyword">package</strong> com.hgrm.nonsensegenerator.corelayer.services;
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <strong class="jxr_keyword">import</strong> com.google.cloud.language.v1.*;
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> com.hgrm.nonsensegenerator.corelayer.configurations.CoreConfig;
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">import</strong> com.hgrm.nonsensegenerator.corelayer.entities.SemanticTree;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">import</strong> com.hgrm.nonsensegenerator.corelayer.entities.SemanticTreeEdge;
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> com.hgrm.nonsensegenerator.corelayer.entities.SentenceProcessingOption;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> com.hgrm.nonsensegenerator.corelayer.entities.Word;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> com.hgrm.nonsensegenerator.corelayer.enums.Tense;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> com.hgrm.nonsensegenerator.corelayer.enums.WordType;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> com.hgrm.nonsensegenerator.corelayer.factories.WordFactory;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> org.springframework.beans.factory.annotation.Autowired;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> org.springframework.stereotype.Service;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> com.google.cloud.language.v1.PartOfSpeech;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_comment"> * This service uses Google Cloud's Natural Language API to analyze the syntax of a given sentence.</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_comment"> * It provides a semantic tree representation of the sentence.</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  @Service
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="SyntaxAnalyzerService" href="../../../../../com/hgrm/nonsensegenerator/corelayer/services/SyntaxAnalyzerService.html#SyntaxAnalyzerService">SyntaxAnalyzerService</a> {
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>      @Autowired
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <a name="WordFactory" href="../../../../../com/hgrm/nonsensegenerator/corelayer/factories/WordFactory.html#WordFactory">WordFactory</a> wordFactory;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> LanguageServiceClient serviceClient;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <a name="SyntaxAnalyzerService" href="../../../../../com/hgrm/nonsensegenerator/corelayer/services/SyntaxAnalyzerService.html#SyntaxAnalyzerService">SyntaxAnalyzerService</a>(<a name="CoreConfig" href="../../../../../com/hgrm/nonsensegenerator/corelayer/configurations/CoreConfig.html#CoreConfig">CoreConfig</a> coreConfig) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>          LanguageServiceSettings serviceSettings = LanguageServiceSettings.newBuilder().setApiKey(coreConfig.getGcpApiKey()).build();
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>          serviceClient = LanguageServiceClient.create(serviceSettings);
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      }
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <em class="jxr_comment">// This method analyzes the syntax of a given sentence and returns a semantic tree representation.</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">public</strong> <a name="SemanticTree" href="../../../../../com/hgrm/nonsensegenerator/corelayer/entities/SemanticTree.html#SemanticTree">SemanticTree</a> analyzeSentence(String sentence, <a name="SentenceProcessingOption" href="../../../../../com/hgrm/nonsensegenerator/corelayer/entities/SentenceProcessingOption.html#SentenceProcessingOption">SentenceProcessingOption</a> option) {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          <a name="SemanticTree" href="../../../../../com/hgrm/nonsensegenerator/corelayer/entities/SemanticTree.html#SemanticTree">SemanticTree</a> semanticTree = <strong class="jxr_keyword">new</strong> <a name="SemanticTree" href="../../../../../com/hgrm/nonsensegenerator/corelayer/entities/SemanticTree.html#SemanticTree">SemanticTree</a>();
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          <em class="jxr_comment">// Initialize the Document object with the sentence to be analyzed</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          Document doc = Document.newBuilder()
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>                  .setContent(sentence)
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>                  .setType(Document.Type.PLAIN_TEXT)
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>                  .setLanguage(<span class="jxr_string">"en"</span>)
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>                  .build();
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <em class="jxr_comment">// Create the request and read the response</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          AnalyzeSyntaxRequest request = AnalyzeSyntaxRequest.newBuilder()
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>                  .setDocument(doc)
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>                  .setEncodingType(EncodingType.UTF16)
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>                  .build();
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          AnalyzeSyntaxResponse response = serviceClient.analyzeSyntax(request);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          List&lt;Token&gt; tokenList = response.getTokensList();
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <em class="jxr_comment">// Iterate through the tokens and create Word objects</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i != tokenList.size(); ++i) {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>              Token token = tokenList.get(i);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>              <a name="Word" href="../../../../../com/hgrm/nonsensegenerator/corelayer/entities/Word.html#Word">Word</a> word = getWordFromToken(token);
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>              <strong class="jxr_keyword">if</strong> (word != <strong class="jxr_keyword">null</strong>) semanticTree.addWord(word);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              <em class="jxr_comment">// If requested, save the semantic tree edge</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              <strong class="jxr_keyword">if</strong> (option.isShouldProvideSemanticTreeAnalysis() &amp;&amp; token.getDependencyEdge().getLabel().equals(DependencyEdge.Label.ROOT)) {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>                  <a name="SemanticTreeEdge" href="../../../../../com/hgrm/nonsensegenerator/corelayer/entities/SemanticTreeEdge.html#SemanticTreeEdge">SemanticTreeEdge</a> semanticTreeEdge = getSemanticTreeEdge(tokenList, i);
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  semanticTree.addRootEdge(semanticTreeEdge);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              }
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">return</strong> semanticTree;
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      }
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <em class="jxr_comment">// Retrieve the word type from the token</em>
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">private</strong> <a name="Word" href="../../../../../com/hgrm/nonsensegenerator/corelayer/entities/Word.html#Word">Word</a> getWordFromToken(Token token) {
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          PartOfSpeech.Tag tag = token.getPartOfSpeech().getTag();
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          String wordString = token.getText().getContent();
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">switch</strong> (tag) {
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              <strong class="jxr_keyword">case</strong> ADJ -&gt; wordFactory.createWord(wordString, WordType.ADJECTIVE);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              <strong class="jxr_keyword">case</strong> NOUN -&gt; wordFactory.createWord(wordString, WordType.NOUN);
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>              <strong class="jxr_keyword">case</strong> VERB -&gt; wordFactory.createWord(wordString, WordType.VERB, getTenseFromToken(token));
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              <strong class="jxr_keyword">default</strong> -&gt; <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          };
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      }
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <em class="jxr_comment">// Retrieve the tense from the token</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <strong class="jxr_keyword">private</strong> <a name="Tense" href="../../../../../com/hgrm/nonsensegenerator/corelayer/enums/Tense.html#Tense">Tense</a> getTenseFromToken(Token token) {
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          PartOfSpeech.Tense tense = token.getPartOfSpeech().getTense();
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">switch</strong> (tense) {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>              <strong class="jxr_keyword">case</strong> PAST, PLUPERFECT, IMPERFECT -&gt; Tense.PAST; <em class="jxr_comment">// They fall under the same category</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              <strong class="jxr_keyword">case</strong> FUTURE -&gt; Tense.FUTURE;
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>              <strong class="jxr_keyword">default</strong> -&gt; Tense.PRESENT;
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          };
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <em class="jxr_comment">// Create a semantic tree edge from the token list</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">private</strong> <a name="SemanticTreeEdge" href="../../../../../com/hgrm/nonsensegenerator/corelayer/entities/SemanticTreeEdge.html#SemanticTreeEdge">SemanticTreeEdge</a> getSemanticTreeEdge(List&lt;Token&gt; tokenList, <strong class="jxr_keyword">int</strong> currentTokenIndex) {
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          Token currentToken = tokenList.get(currentTokenIndex);
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          <a name="SemanticTreeEdge" href="../../../../../com/hgrm/nonsensegenerator/corelayer/entities/SemanticTreeEdge.html#SemanticTreeEdge">SemanticTreeEdge</a> semanticTreeEdge = <strong class="jxr_keyword">new</strong> <a name="SemanticTreeEdge" href="../../../../../com/hgrm/nonsensegenerator/corelayer/entities/SemanticTreeEdge.html#SemanticTreeEdge">SemanticTreeEdge</a>(currentToken.getPartOfSpeech().getTag().toString(), currentToken.getText().getContent());
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; tokenList.size(); i++) {
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>             Token childToken = tokenList.get(i);
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>             DependencyEdge dependencyEdge = childToken.getDependencyEdge();
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>             <strong class="jxr_keyword">if</strong> (dependencyEdge.getHeadTokenIndex() == currentTokenIndex &amp;&amp; i != currentTokenIndex) {
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>                 <a name="SemanticTreeEdge" href="../../../../../com/hgrm/nonsensegenerator/corelayer/entities/SemanticTreeEdge.html#SemanticTreeEdge">SemanticTreeEdge</a> childSemanticTreeEdge = getSemanticTreeEdge(tokenList, i);
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>                 semanticTreeEdge.addChild(childSemanticTreeEdge);
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>             }
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         }
+<a class="jxr_linenumber" name="L107" href="#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         <strong class="jxr_keyword">return</strong> semanticTreeEdge;
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     }
+<a class="jxr_linenumber" name="L110" href="#L110">110</a> }
+</pre>
+<hr/>
+<div id="footer">© 2025 <a href="https://github.com/HGRM-Forge">HGRM Forge</a></div>
+</body>
+</html>

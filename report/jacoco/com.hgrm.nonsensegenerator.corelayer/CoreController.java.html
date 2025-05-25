@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CoreController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Nonsense Generator</a> &gt; <a href="index.source.html" class="el_package">com.hgrm.nonsensegenerator.corelayer</a> &gt; <span class="el_source">CoreController.java</span></div><h1>CoreController.java</h1><pre class="source lang-java linenums">package com.hgrm.nonsensegenerator.corelayer;
+
+import com.hgrm.nonsensegenerator.corelayer.entities.SemanticTree;
+import com.hgrm.nonsensegenerator.corelayer.entities.SentenceProcessingOption;
+import com.hgrm.nonsensegenerator.corelayer.entities.SentenceTemplate;
+import com.hgrm.nonsensegenerator.corelayer.entities.Word;
+import com.hgrm.nonsensegenerator.corelayer.services.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+/**
+ * CoreController is the main controller for the core layer of the application.
+ * It handles the processing of sentences, including analysis, generation, and history management.
+ */
+@Component
+<span class="fc" id="L18">public class CoreController {</span>
+    @Autowired
+    SentenceHistoryService sentenceHistoryService;
+
+    @Autowired
+    SentenceStructureService sentenceStructureService;
+
+    @Autowired
+    SyntaxAnalyzerService syntaxAnalyzerService;
+
+    @Autowired
+    SentenceGeneratorService sentenceGeneratorService;
+
+    @Autowired
+    ToxicityAnalyzerService toxicityAnalyzerService;
+
+    @Autowired
+    DictionaryService dictionaryService;
+
+    // Object returned from processAndGenerateSentence
+    // It also contains the semantic tree so that it is possible to draw the syntactic tree in the frontend
+<span class="fc" id="L39">    public record SentenceOutputData(String sentence, SemanticTree semanticTree) {}</span>
+
+    // Get the list of sentence templates
+    public List&lt;SentenceTemplate&gt; getTemplateList() {
+<span class="fc" id="L43">        return sentenceStructureService.getTemplateList();</span>
+    }
+
+    public SentenceOutputData processAndGenerateSentence(String inputSentence, SentenceProcessingOption option) {
+        // Check for toxicity first
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        if (isSentenceToxic(inputSentence))</span>
+<span class="nc" id="L49">            return new SentenceOutputData(&quot;Sentence is toxic&quot;, null);</span>
+<span class="fc" id="L50">        SemanticTree inputSemanticTree = analyzeSentence(inputSentence, option);</span>
+
+        // Generate
+<span class="fc" id="L53">        String generatedSentence = generateSentence(inputSemanticTree, option);</span>
+        // Check for preference of word list saving
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if (option.isShouldSaveWordList())</span>
+<span class="fc" id="L56">            saveWordList(inputSemanticTree);</span>
+      
+        // Check for preference of sentence saving
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (option.isShouldSaveSentence())</span>
+<span class="fc" id="L60">            saveSentence(generatedSentence);</span>
+
+<span class="fc" id="L62">        return new SentenceOutputData(generatedSentence, inputSemanticTree);</span>
+    }
+
+    // Get the history of generated sentences
+    public List&lt;String&gt; getSentenceHistory() {
+<span class="fc" id="L67">        return sentenceHistoryService.getOutputSentenceHistory();</span>
+    }
+
+    private SemanticTree analyzeSentence(String inputSentence, SentenceProcessingOption option) {
+<span class="fc" id="L71">        return syntaxAnalyzerService.analyzeSentence(inputSentence, option);</span>
+    }
+
+    private boolean isSentenceToxic(String inputSentence) {
+<span class="fc" id="L75">        return toxicityAnalyzerService.isToxic(inputSentence);</span>
+    }
+
+    private String generateSentence(SemanticTree inputSemanticTree, SentenceProcessingOption option) {
+<span class="fc" id="L79">        return sentenceGeneratorService.generateSentence(inputSemanticTree, option);</span>
+    }
+
+    private void saveSentence(String outputSentence) {
+<span class="fc" id="L83">        sentenceHistoryService.saveOutputSentence(outputSentence);</span>
+<span class="fc" id="L84">    }</span>
+
+    private void saveWordList(SemanticTree semanticTree) {
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        for (Word word : semanticTree.getWordList()) {</span>
+<span class="fc" id="L88">            dictionaryService.saveWord(word);</span>
+<span class="fc" id="L89">        }</span>
+<span class="fc" id="L90">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
