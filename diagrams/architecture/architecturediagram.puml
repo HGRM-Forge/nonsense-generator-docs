@@ -1,0 +1,34 @@
+@startuml
+component System {
+    component UI
+    component ApiLayer
+    component CoreLayer
+
+    interface CoreController
+    interface ApiController
+
+    UI --( ApiController
+    ApiController -- ApiLayer
+
+    ApiLayer --( CoreController
+    CoreController -- CoreLayer
+
+    portout network
+    portout fs
+
+    CoreLayer -- network
+    CoreLayer -- fs
+}
+
+component CloudNaturalLanguage
+component Storage
+
+network --( ToxicityAPI
+network --( AnalyzerAPI
+
+ToxicityAPI -- CloudNaturalLanguage
+AnalyzerAPI -- CloudNaturalLanguage
+
+fs --( Bucket
+Bucket -- Storage
+@enduml
