@@ -1,0 +1,70 @@
+@startuml internalsequencediagram_generateSentence
+!theme mars
+skinparam actor{
+  style awesome
+  FontSize 20
+}
+skinparam participant{
+  FontSize 17
+}
+skinparam Arrow{
+  Color #404040
+  FontColor #1f1f1f
+  FontSize 14
+  Thickness 1.2
+}
+skinparam Note{
+  FontSize 15
+}
+skinparam sequence{
+  DividerFontSize 15
+  LifeLineBackgroundColor #d93b3b70
+  LifeLineBorderColor #c4000090
+}
+
+participant CoreController as C
+participant SentenceGeneratorService as SG
+' participant SentenceProcessingOption as SPO
+participant SentenceTemplate as ST
+participant SemanticTree as SMT
+participant DictionaryService as DS
+' participant SentenceHistoryService as SHS
+
+== generateSentence ==
+C -> SG : generateSentence(inputSemanticTree, option)
+activate SG
+
+SG <-- ST
+SG <-- SMT
+note right of SG
+    calculate noun, verb, adjective
+    to get from input and dictionary
+    based on RATIO value and user options
+end note
+
+loop foreach word type
+    loop foreach word needed from SemanticTree
+        SMT -> SG : getRandomWord(wordType, tense)
+        activate SMT
+        SMT --> SG : word
+        deactivate SMT
+        note right of SG: add word to words list
+    end
+
+    loop foreach word needed from DictionaryService
+        SG -> DS : geRandomWord(wordType, tense)
+        activate DS
+        DS --> SG : word
+        deactivate DS
+        note right of SG: add word to words list
+    end
+end
+
+SG -> ST : buildSentence(words)
+activate ST
+ST --> SG : outputSentence
+deactivate ST
+
+C <-- SG : outputSentence
+deactivate SG
+@enduml

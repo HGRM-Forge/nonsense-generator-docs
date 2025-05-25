@@ -1,0 +1,50 @@
+@startuml
+!theme mars
+skinparam actor{
+  style awesome
+  FontSize 20
+}
+skinparam participant{
+  FontSize 17
+}
+skinparam Arrow{
+  Color #404040
+  FontColor #1f1f1f
+  FontSize 14
+  Thickness 1.2
+}
+skinparam Note{
+  FontSize 15
+}
+skinparam sequence{
+  DividerFontSize 15
+  LifeLineBackgroundColor #d93b3b70
+  LifeLineBorderColor #c4000090
+}
+
+participant CoreController
+
+-> CoreController: processAndGenerateSentence(inputSentence, option)
+ref over CoreController
+        analyzeSentence(inputSentence): SemanticTree
+    end ref
+
+    ref over CoreController
+        isSentenceToxic(inputSentence): boolean
+    end ref
+
+    ref over CoreController
+        saveWordList(semanticTree): void
+    end ref
+
+    ref over CoreController
+        generateSentence(semanticTree, option): String
+    end ref
+
+    ref over CoreController
+        saveSentence(outputSentence): void
+    end ref
+deactivate CoreController
+<-- CoreController : (nonsenseSentence, inputSentenceSemanticTree)
+
+@enduml

@@ -1,0 +1,61 @@
+@startuml internalSequenceDiagram_analyzeSentence
+!theme mars
+skinparam actor{
+  style awesome
+  FontSize 20
+}
+skinparam participant{
+  FontSize 17
+}
+skinparam Arrow{
+  Color #404040
+  FontColor #1f1f1f
+  FontSize 14
+  Thickness 1.2
+}
+skinparam Note{
+  FontSize 15
+}
+skinparam sequence{
+  DividerFontSize 15
+  LifeLineBackgroundColor #d93b3b70
+  LifeLineBorderColor #c4000090
+}
+participant CoreController as C
+participant WordFactory as WF
+participant SemanticTree as ST
+participant SemanticTreeEdge as STE
+boundary SyntaxAnalyzerService as SA
+
+== analyzeSentence ==
+  -> C : analyzeSentence(inputSentence, option)
+  activate C
+  C -> SA : analyzeSentence(inputSentence, option)
+activate SA
+  SA ->
+  SA <-- : rawAnalyzedSentence
+  SA -> ST : new SemanticTree()
+  ST --> SA : sentenceSemanticTree
+loop foreach (wordString,wordType) in rawAnalyzedSentence
+    SA -> WF : createWord(wordString, wordType)
+    WF --> SA : word
+    SA -> ST : addWord(word)
+    ST --> SA : ack
+    opt option.shouldProvideSemanticTreeAnalysis && word label == ROOT
+    SA -> STE : new SemanticTreeEdge(label, value)
+    activate STE
+    note over STE
+    build recursively
+    rootSemanticTreeEdge.children
+    end note
+    STE --> SA : rootSemanticTreeEdge
+    deactivate STE
+    SA -> ST : addRootEdge(rootSemanticTreeEdge)
+    ST --> SA : ack
+    end
+end
+  SA --> C : sentenceSemanticTree
+  <-- C : sentenceSemanticTree
+deactivate SA
+deactivate C
+@enduml

@@ -1,0 +1,71 @@
+@startuml crosssubsystemsequencediagram
+!theme mars
+skinparam actor{
+  style awesome
+  FontSize 20
+}
+skinparam participant{
+  FontSize 17
+}
+skinparam Arrow{
+  Color #404040
+  FontColor #1f1f1f
+  FontSize 14
+  Thickness 1.2
+}
+skinparam Note{
+  FontSize 15
+}
+skinparam sequence{
+  DividerFontSize 15
+  LifeLineBackgroundColor #d93b3b70
+  LifeLineBorderColor #c4000090
+}
+
+participant UILayer as UI
+participant APILayer as API
+participant CoreLayer as CORE
+
+== Initialization and rendering ==
+-> UI : Request UI rendering
+activate UI
+UI -> API : GET /api/get-template-list
+activate API
+API -> CORE : getTemplateList()
+activate CORE
+CORE ->
+CORE <--
+CORE -> API : templateList
+deactivate CORE
+API -> UI : templateList
+deactivate API
+UI -> API : GET /api/get-sentence-history
+activate API
+API -> CORE : getSentenceHistory()
+activate CORE
+CORE ->
+CORE <--
+CORE -> API : templateList
+deactivate CORE
+API -> UI : templateList
+deactivate API
+<-- UI : UI interface
+deactivate UI
+
+== Sentence processing and generation ==
+-> UI : Press button\n"Generate Nonsense"
+activate UI
+UI -> API : POST /api/process-and-generate-sentence
+activate API
+API -> CORE : processAndGenerateSentence(inputSentence, option)
+activate CORE
+CORE ->
+CORE <--
+CORE -> API : (sentence, semanticTree)
+deactivate CORE
+API -> UI : (sentence, semanticTree)
+deactivate API
+<-- UI : Display output
+deactivate UI
+
+@enduml

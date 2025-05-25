@@ -1,0 +1,38 @@
+@startuml internalsequencediagram_saveWordList
+!theme mars
+skinparam actor{
+  style awesome
+  FontSize 20
+}
+skinparam participant{
+  FontSize 17
+}
+skinparam Arrow{
+  Color #404040
+  FontColor #1f1f1f
+  FontSize 14
+  Thickness 1.2
+}
+skinparam Note{
+  FontSize 15
+}
+skinparam sequence{
+  DividerFontSize 15
+  LifeLineBackgroundColor #d93b3b70
+  LifeLineBorderColor #c4000090
+}
+
+participant Controller as C
+participant SemanticTree as ST
+boundary DictionaryService as D
+
+== saveWordList ==
+  -> C : saveWordList(semanticTree)
+  C -> ST : getWordList()
+  ST --> C : wordList
+  loop for word in wordList
+  C -> D : saveWord(word)
+  D --> C : ack
+  end
+  <-- C : ack
+@enduml

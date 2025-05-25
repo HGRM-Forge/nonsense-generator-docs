@@ -1,0 +1,59 @@
+@startuml internalsequencediagram_saveSentence
+!theme mars
+skinparam actor{
+  style awesome
+  FontSize 20
+}
+skinparam participant{
+  FontSize 17
+}
+skinparam Arrow{
+  Color #404040
+  FontColor #1f1f1f
+  FontSize 14
+  Thickness 1.2
+}
+skinparam Note{
+  FontSize 15
+}
+skinparam sequence{
+  DividerFontSize 15
+  LifeLineBackgroundColor #d93b3b70
+  LifeLineBorderColor #c4000090
+}
+
+participant CoreController as C
+participant SentenceHistoryService as SHS
+database "outputBucket:Bucket" as OB
+
+== Initialization ==
+C -> SHS : start
+SHS -> OB : read()
+activate OB
+SHS <-- OB : outputHistory
+deactivate OB
+C <-- SHS : outputHistory
+
+
+== saveOutputSentence ==
+C -> SHS : saveOutputSentence(sentence)
+activate SHS
+SHS -> OB : write(outputSentenceHistory)
+activate OB
+SHS <-- OB : ack
+deactivate OB
+C <-- SHS : void
+deactivate SHS
+
+== getSentenceHistory ==
+C -> SHS : getOutputSentenceHistory()
+activate SHS
+note right of SHS
+  Returns cached outputHistory,
+  no need to read bucket again
+end note
+C <-- SHS : outputHistory
+deactivate SHS
+
+
+@enduml

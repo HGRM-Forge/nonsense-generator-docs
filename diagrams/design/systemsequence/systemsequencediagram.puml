@@ -1,0 +1,112 @@
+@startuml systemsequencediagram
+!theme mars
+skinparam actor{
+style awesome
+FontSize 20
+}
+skinparam participant{
+FontSize 17
+}
+skinparam Arrow{
+Color #404040
+FontColor #1f1f1f
+FontSize 14
+Thickness 1.2
+}
+skinparam Note{
+FontSize 15
+}
+skinparam sequence{
+DividerFontSize 15
+LifeLineBackgroundColor #d93b3b70
+LifeLineBorderColor #c4000090
+}
+
+actor User as U
+participant System as S
+participant ToxicityAPI as TA
+participant AnalyzerAPI as AA
+participant Storage as SA
+
+== Initialization and rendering ==
+U -> S : Request UI rendering
+activate S
+S -> SA : Retrieve templateList
+activate SA
+SA --> S : //templateList//
+deactivate SA
+S -> SA : Retrieve sentenceHistory
+activate SA
+SA --> S : //sentenceHistory//
+deactivate SA
+S -> S : Build UI with the retrieved data
+S --> U : UI interface
+deactivate S
+
+== Sentence processing and generation ==
+U -> S : Insert sentence
+activate S
+S --> U : ack
+deactivate S
+U -> S : Select options:\n-tense\n-sentenceTemplate\n-shouldSaveSentence\n-shouldSaveWordList\n-shouldProvideSemanticTreeAnalysis
+activate S
+S --> U : ack
+deactivate S
+U -> S : Press button\n"Generate Nonsense"
+
+activate S
+S -> TA : Analyze sentence for toxicity
+
+activate TA
+TA --> S : //toxicity level//
+deactivate TA
+
+alt The sentence is toxic
+note over S
+The sentence should be not toxic
+end note
+S --> U : Show toxicity warning
+
+else The sentence is not toxic
+S -> AA : Analyze sentence
+activate AA
+AA --> S : analyzed sentence
+deactivate AA
+
+opt shouldProvideSemanticTreeAnalysis
+note over S
+**Syntactic Tree Generation**
+end note
+end
+
+alt user chose a random template
+note over S : Template used for sentence generation is random
+else user chose a specific template
+note over S : Template used for sentence generation\nis the one specified by the user
+end
+
+alt user chose a random sentence tense
+note over S : Tense used for sentence generation is random
+else user chose a specific sentence tense
+note over S : Tense used for sentence generation\nis the one specified by the user
+end
+note over S : **Generate Sentence**
+
+opt shouldSaveWordList
+S -> SA : save input word list
+activate SA
+SA --> S : ack
+deactivate SA
+end
+
+opt shouldSaveSentence
+S -> SA : save nonsense sentence
+activate SA
+SA --> S : ack
+deactivate SA
+end
+S --> U : Display output
+deactivate S
+end
+
+@enduml

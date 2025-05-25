@@ -1,0 +1,190 @@
+@startuml designClassModelDiagram
+left to right direction
+
+class CoreConfig {
+    -gcpApiKey: String
+    +getGcpApiKey(): String
+    +setGcpApiKey(gcpApiKey: String): void
+}
+
+class CoreController <<controller>> {
+    +getTemplateList(): List<SentenceTemplate>
+    +processAndGenerateSentence(inputSentence: String, option: SentenceProcessingOption): SentenceOutputData
+    +getSentenceHistory(): List<String>
+}
+
+class SentenceHistoryService <<singleton>> {
+    -outputBucket: Bucket<String>
+    -outputSentenceHistory: List<String>
+    +SentenceHistoryService()
+    +saveOutputSentence(sentence: String): void
+    +resetHistory(): void
+    +getOutputSentenceHistory(): List<String>
+}
+
+class SemanticTree {
+    -tense: Tense
+    -nounList: List<Word>
+    -verbList: List<Word>
+    -adjectiveList: List<Word>
+    -rootEdgeList: List<SemanticTreeEdge>
+    +SemanticTree()
+    +addRootEdge(rootEdge: SemanticTreeEdge)
+    +addWord(word: Word): void
+    +getRandomWord(wordType: WordType): Word
+    +getRandomWord(wordType: WordType, tense: Tense): Word
+    +getTense(): Tense
+    +getWordList(): List<Word>
+    +getNounList(): List<Word>
+    +getVerbList(): List<Word>
+    +getAdjectiveList(): List<Word>
+    +getRootEdgeList(): List<SemanticTreeEdge>
+}
+
+class SemanticTreeEdge <<composite>> {
+    -label: String
+    -value: String
+    -children: List<SemanticTreeEdge>
+    +SemanticTreeEdge(label: String, value: String)
+    +addChild(child: SemanticTreeEdge): void
+    +getLabel(): String
+    +getValue(): String
+    +getChildren(): List<SemanticTreeEdge>
+}
+
+class WordFactory <<factory>> {
+    +createWord(wordString: String, wordType: WordType): Word
+    +createWord(wordString: String, wordType: WordType, tense: Tense): Word
+}
+class SentenceGeneratorService <<singleton>> {
+    +generateSentence(inputSemanticTree: SemanticTree, option: SentenceProcessingOption): String
+}
+class SyntaxAnalyzerService <<singleton>> {
+    +analyzeSentence(sentence: String): SemanticTree
+}
+class SentenceStructureService <<singleton>> {
+    -templateBucket: Bucket
+    -templateList: List<SentenceTemplate>
+    +getTemplateList(): List<SentenceTemplate>
+}
+
+class SentenceTemplate {
+    -templatePlaceholder: String
+    +SentenceTemplate(templatePlaceholder: String)
+    +getWordCount(wordType: WordType): int
+    +buildSentence(wordList: List<Word>): String
+}
+
+class DictionaryService <<singleton>> {
+    -Bucket<Noun>
+    -Bucket<Adjective>
+    -Bucket<Verb>
+    -nouns: List<Word>
+    -adjectives: List<Word>
+    -verbs: List<Word>
+    +DictionaryService()
+    +getRandomWord(wordType: WordType): Word
+    +getRandomWord(wordType: WordType, tense: Tense): Word
+    +saveWord(word: Word): void
+    +resetDictionary(): void
+    +resetNounDictionary(): void
+    +resetAdjectivesDictionary(): void
+    +resetVerbDictionary(): void
+}
+interface Bucket<T> {
+    +write(data: List<T>): void
+    +read(): List<T>
+    +resetBucket(): void
+}
+
+class LocalBucketAdapter<T> <<adapter>> implements Bucket {
+    -bucketName: String
+    -typeOfObject: Class<T>
+    +LocalBucketAdapter(bucketName: String, type: Class<T>)
+    +write(data: List<T>): void
+    +read(): List<T>
+    +resetBucket(): void
+}
+
+class ToxicityAnalyzerService <<singleton>> {
+    +isToxic(sentence: String): boolean
+}
+class Word {
+    #value: String
+    #type: WordType
+    +getValue(): String
+    +getType(): WordType
+    +equals(object: Object): boolean
+}
+class Noun extends Word {
+    +Noun(value: String)
+}
+class Verb extends Word {
+    -tense: Tense
+    +Verb(value: String, tense: Tense)
+    +getTense(): Tense
+}
+class Adjective extends Word {
+    +Adjective(value: String)
+}
+
+class SentenceProcessingOption {
+    -tense: Tense
+    -sentenceTemplate: SentenceTemplate
+    -shouldSaveSentence: boolean
+    -shouldSaveWordList: boolean
+    +SentenceProcessingOption(tense: Tense, sentenceTemplate: SentenceTemplate)
+    +getTense(): Tense
+    +getSentenceTemplate(): SentenceTemplate
+    +getShouldSaveSentence(): boolean
+    +getShouldSaveWordList(): boolean
+    +setTense(tense: Tense): void
+    +setSentenceTemplate(sentenceTemplate: SentenceTemplate): void
+    +setShouldSaveSentence(shouldSaveSentence: boolean): void
+    +setShouldSaveWordList(shouldSaveWordList: boolean): void
+}
+enum WordType {
+    NOUN
+    VERB
+    ADJECTIVE
+}
+enum Tense {
+    PAST
+    PRESENT
+    FUTURE
+}
+SemanticTree "1" -- "1" Tense
+SemanticTree "1" o-- "*" Word
+SemanticTree "1" o-- "*" SemanticTreeEdge
+SemanticTreeEdge "1" o-- "*" SemanticTreeEdge
+DictionaryService "1" o-- "*" Word
+DictionaryService "1" -- "3" Bucket
+SentenceHistoryService "1" *-- "1" Bucket
+SentenceStructureService "1" -- "1" Bucket
+Verb "1" -- "1" Tense 
+SentenceStructureService "1" -- "*" SentenceTemplate
+Word "1" -- "1" WordType
+SentenceProcessingOption "1" -- "1" Tense
+SentenceProcessingOption "1" -- "1" SentenceTemplate
+
+CoreController ..> SentenceProcessingOption
+CoreController ..> SentenceTemplate
+CoreController ..> SentenceGeneratorService
+CoreController ..> ToxicityAnalyzerService
+CoreController ..> SyntaxAnalyzerService
+CoreController ..> SentenceHistoryService
+CoreController ..> SentenceStructureService
+CoreController ..> DictionaryService
+WordFactory ..> Word
+WordFactory ..> WordType
+SyntaxAnalyzerService ..> WordFactory
+SyntaxAnalyzerService ..> SemanticTree
+SyntaxAnalyzerService ..> CoreConfig   
+DictionaryService ..> WordFactory
+SentenceTemplate ..> WordType
+SentenceTemplate ..> Word
+SentenceGeneratorService ..> SemanticTree
+SentenceGeneratorService ..> SentenceProcessingOption
+SentenceGeneratorService ..> DictionaryService
+ToxicityAnalyzerService ..> CoreConfig
+@enduml

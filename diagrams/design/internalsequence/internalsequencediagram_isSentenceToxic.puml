@@ -1,0 +1,46 @@
+@startuml internalsequencediagram_toxicity
+!theme mars
+skinparam actor{
+  style awesome
+  FontSize 20
+}
+skinparam participant{
+  FontSize 17
+}
+skinparam Arrow{
+  Color #404040
+  FontColor #1f1f1f
+  FontSize 14
+  Thickness 1.2
+}
+skinparam Note{
+  FontSize 15
+}
+skinparam sequence{
+  DividerFontSize 15
+  LifeLineBackgroundColor #d93b3b70
+  LifeLineBorderColor #c4000090
+}
+
+participant CoreController as C
+participant ToxicityAnalyzerService as TAS
+participant ToxicityAnalyzerAPI as API
+
+== CheckSentenceToxicity ==
+C -> TAS : isToxic(inputSentence)
+activate TAS
+TAS -> API : analyzeToxicity(inputSentence)
+activate API
+TAS <-- API : toxicityResult
+deactivate API
+
+alt toxicityResult is true
+    C <-- TAS : true
+    note right of C: Sentence rejected as toxic
+else toxicityResult is false
+    C <-- TAS : false
+    note right of C: Sentence accepted as non-toxic
+deactivate TAS
+end
+
+@enduml

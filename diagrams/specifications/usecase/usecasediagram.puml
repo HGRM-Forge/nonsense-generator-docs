@@ -1,0 +1,42 @@
+@startuml
+left to right direction
+skinparam actorStyle awesome
+
+:Toxicity Filter API:
+:Syntax Analyzer API:
+
+rectangle NonsenseGenerator{
+  (Insert Sentence)
+  (Generated Sentence History)
+  (Time Preference)
+  (Choose template)
+  (Output Sentence)
+  (Syntactic Tree Display)
+  (Words Pool)
+  (PrS) as "=Processing Sentence\n--\n**Extension Points**\nPersonalized Sentence"
+
+}
+:User:
+User --> (Insert Sentence)
+User <-- (Generated Sentence History)
+User --> (Time Preference)
+User --> (Choose template)
+User <-- (Output Sentence)
+User -- (Syntactic Tree Display)
+
+(Output Sentence) -left-> (Generated Sentence History)
+
+
+(PrS) <-up- (Insert Sentence)
+(PrS) -up-> (Output Sentence)
+(PrS) <.up. (Time Preference) : <<extends>>
+(PrS) <.up. (Choose template) : <<extends>>
+(PrS) -up-> (Syntactic Tree Display)
+
+(Words Pool) .. (PrS) : <<extends>>
+
+(Toxicity Filter API) -- (Insert Sentence)
+(Syntax Analyzer API) -- (PrS)
+
+
+@enduml
