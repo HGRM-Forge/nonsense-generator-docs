@@ -8,7 +8,3 @@ This repository contains the documentation for the Nonsense Generator project. I
 
 -   **report/**: Maven auto-generated report, including coverage and dependencies.
 -   **site/**: Mintlify documentation website
-
-## Full Documentation
-
-You can visit the full documentation at: [https://hgrm-77f1146a.mintlify.app/](https://hgrm-77f1146a.mintlify.app/)
