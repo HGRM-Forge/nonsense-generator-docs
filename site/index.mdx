@@ -4,16 +4,12 @@ title: Nonsense Generator
 
 Welcome to the Nonsense Generator! This application, developed by **HGRMForge** for the Software Engineering course (A.A. 2024-25) at the University of Padua, generates grammatically plausible but nonsensical sentences. It leverages the Google Cloud Natural Language API for sentence analysis and toxicity validation.
 
-## Documentation
-
-The full documentation is available [here](https://hgrm-77f1146a.mintlify.app/).
-
 ## Prerequisites
 
 -   **Java**: JDK 17 or newer (for local execution).
 -   **Docker**: Latest version (for Docker-based execution).
 -   **GCP API Key**: A valid Google Cloud Platform API Key with the "Cloud Natural Language API" enabled.
--   For **Docker execution**, this key must be set as an environment variable named `GCP_API_KEY` in your shell.
+-   For **Docker execution**, this key must be passed as an environment variable named `GCP_API_KEY` in your shell.
 -   For **local execution (Spring Boot/IntelliJ)**, create a file named `.env` in the root directory of the project with the following content (replace `YOUR_GCP_API_KEY_HERE` with your actual key). This file will be automatically picked up by the application:
 
 ```
@@ -65,8 +61,8 @@ Ensure you have created the `.env` file in the project root as described in the 
 git clone https://github.com/HGRM-Forge/nonsense-generator.git --recurse-submodules
 cd nonsense-generator
 
-# 2. Create .env file in the project root (if not already done)
-echo "GCP_API_KEY=YOUR_GCP_API_KEY_HERE" > .env
+# 2. Create .env file in the project root (if not already done) containing:
+GCP_API_KEY=YOUR_GCP_API_KEY_HERE
 
 # 3. Run the application using the Maven wrapper
 ./mvnw spring-boot:run

@@ -25,7 +25,8 @@
 							"DesignDocument",
 							"UnitTestCoverage",
 							"SystemTest",
-							"Dependencies"
+							"Dependencies",
+							"CI"
 						]
 					}
 				]

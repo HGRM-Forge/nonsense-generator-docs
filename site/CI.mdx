@@ -1,0 +1,32 @@
+---
+title: CI Integration
+---
+
+## Continuous Integration (CI)
+
+This project uses GitHub Actions to implement a Continuous Integration (CI) pipeline that automates testing and release processes.
+
+### Test Workflow
+
+On every push to any branch, the test workflow (`.github/workflows/test.yml`) is triggered. This workflow:
+
+-   Checks out the source code.
+-   Sets up the Java environment (JDK 17) using Temurin.
+-   Retrieves the secret variable `GCP_API_KEY` and writes it to a `.env` file.
+-   Runs the test suite using Maven (`mvn clean verify`).
+
+### Release Workflow
+
+The release workflow (`.github/workflows/release.yml`) is triggered manually or on every push to the `main` branch. This workflow:
+
+-   Checks out the source code.
+-   Sets up Docker Buildx for multi-architecture builds.
+-   Logs in to DockerHub using a secret token.
+-   Builds and pushes the Docker image for `linux/amd64` and `linux/arm64` platforms.
+-   Uses GitHub Actions cache to optimize builds.
+
+### Benefits
+
+-   **Automation**: Tests are run automatically on every code change, ensuring quality and stability.
+-   **Continuous delivery**: Docker images are automatically published to DockerHub on every release.
+-   **Security**: Sensitive variables are managed through GitHub Secrets.
