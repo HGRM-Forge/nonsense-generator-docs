@@ -1,6 +1,19 @@
 @startuml domainmodeldiagram
+!theme mars
 left to right direction
 skinparam packageStyle rectangle
+skinparam Arrow{
+  Color #404040
+  FontColor #1f1f1f
+  FontSize 14
+  Thickness 1.2
+}
+
+skinparam object {
+    BackgroundColor #E55756
+    BorderColor #BA4645
+    FontColor #FFFFFF
+}
 
 object User
 

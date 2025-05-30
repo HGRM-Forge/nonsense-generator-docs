@@ -1,6 +1,23 @@
 @startuml
+!theme mars
 left to right direction
 skinparam actorStyle awesome
+skinparam actor{
+  style awesome
+  FontSize 20
+}
+skinparam Arrow{
+  Color #404040
+  FontColor #1f1f1f
+  FontSize 14
+  Thickness 1.2
+}
+
+skinparam usecase{
+    BackgroundColor #E55756
+    BorderColor #BA4645
+    FontColor #FFFFFF
+}
 
 :Toxicity Filter API:
 :Syntax Analyzer API:
@@ -17,17 +34,17 @@ rectangle NonsenseGenerator{
 
 }
 :User:
-User --> (Insert Sentence)
-User <-- (Generated Sentence History)
-User --> (Time Preference)
-User --> (Choose template)
-User <-- (Output Sentence)
+User -- (Insert Sentence)
+User -- (Generated Sentence History)
+User -- (Time Preference)
+User -- (Choose template)
+User -- (Output Sentence)
 User -- (Syntactic Tree Display)
 
 (Output Sentence) -left-> (Generated Sentence History)
 
 
-(PrS) <-up- (Insert Sentence)
+(PrS) -up- (Insert Sentence)
 (PrS) -up-> (Output Sentence)
 (PrS) <.up. (Time Preference) : <<extends>>
 (PrS) <.up. (Choose template) : <<extends>>
